@@ -7,7 +7,10 @@ use App\Models\Event;
 use Carbon\Carbon;
 
 class EventsController extends Controller
-{
+{   
+
+    // API Functions //
+
     public function index()
     {
         $events = Event::all();
@@ -99,4 +102,80 @@ class EventsController extends Controller
             return response()->json(["status" => 404, "message" => "event not found"], 404);
         }
     }
+
+    // API Functions END //
+
+    // UI Functions //
+
+    public function uiIndex()
+    {
+        $events = Event::paginate(10);
+        return view('events.index', compact('events'));
+    }
+
+    public function uiCreate()
+    {
+        return view('events.create');
+    }
+
+    public function uiStore(Request $request){
+        $event = new Event();
+        $event->name = $request->name;
+        $event->slug = str_replace(' ', '-', $request->name);
+        $event->createdAt = Carbon::now();
+        $event->updatedAt = Carbon::now();
+        $event->startAt = $request->startAt;
+        $event->endAt = $request->endAt;
+        $event->save();
+        return redirect()->route('events.index')->with('success', 'Event created!');
+    }
+
+    public function uiView($id)
+    {
+        $event = Event::where('id', $id)->first();
+        if ($event) {
+            return view('events.view', compact('event'));
+        } else {
+            return redirect()->route('events.index')->with('error', 'Event not found.');
+        }
+    }
+
+    public function uiEdit($id)
+    {
+        $event = Event::where('id', $id)->first();
+        if ($event) {
+            return view('events.edit', compact('event'));
+        } else {
+            return redirect()->route('events.index')->with('error', 'Event not found.');
+        }
+    }
+
+    public function uiSave(Request $request, $id)
+    {
+        $event = Event::where('id', $id)->first();
+        if ($event) {
+            $event->name = $request->name;
+            $event->slug = str_replace(' ', '-', $request->name);
+            $event->updatedAt = Carbon::now();
+            $event->startAt = $request->startAt;
+            $event->endAt = $request->endAt;
+            $event->save();
+            return redirect()->route('events.index')->with('success', 'Event updated!');
+        } else {
+            return redirect()->route('events.index')->with('error', 'Event not found.');
+        }
+    }
+
+    public function uiDelete($id)
+    {
+        $event = Event::where('id', $id)->first();
+        if ($event) {
+            $event->delete();
+            return redirect()->route('events.index')->with('success', 'Event deleted!');
+        } else {
+            return redirect()->route('events.index')->with('error', 'Event not found.');
+        }
+    }
+
+    // UI Functions END //
 }
