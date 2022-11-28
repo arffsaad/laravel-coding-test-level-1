@@ -40,8 +40,7 @@ class EventsController extends Controller
         $event->startAt = $request->startAt;
         $event->endAt = $request->endAt;
         $event->save();
-        $event->status = "201";
-        return response()->json(["status" => 201, "message" => "event created"], 201);
+        return response()->json(["status" => 201, "message" => "event created", "id" => $event->id], 201);
     }
 
     public function putEvent(Request $request, $id){
@@ -64,7 +63,7 @@ class EventsController extends Controller
             $event->startAt = $request->startAt;
             $event->endAt = $request->endAt;
             $event->save();
-            return response()->json(["status" => 201, "message" => "event created"], 201);
+            return response()->json(["status" => 201, "message" => "event created", "id" => $event->id], 201);
         }
     }
 
