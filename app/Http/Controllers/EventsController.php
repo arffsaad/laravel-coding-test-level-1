@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use Carbon\Carbon;
+use App\Jobs\SendEmail;
+use Illuminate\Support\Facades\Cache;
 
 class EventsController extends Controller
 {   
@@ -13,23 +15,44 @@ class EventsController extends Controller
 
     public function index()
     {
-        $events = Event::all();
+        // if cache has allEvents, return it. Else cache new allEvents for 5 mins.
+        if (Cache::has("allEvents")) {
+            $events = Cache::get("allEvents");
+        }
+        else {
+            $events = Event::all();
+            Cache::put("allEvents", $events, 300);
+        }
         return response()->json($events, 200);
     }
 
     public function activeEvents()
     {
-        $events = Event::where('startAt', '<=', now())->where('endAt', '>=', now())->get();
+        if (Cache::has("activeEvents")) {
+            $events = Cache::get("activeEvents");
+        }
+        else {
+            $events = Event::where('startAt', '<=', now())->where('endAt', '>=', now())->get();
+            Cache::put("activeEvents", $events, 300);
+        }
         return response()->json($events, 200);
     }
 
     public function showEvent($id)
     {
-        $event = Event::find($id);
-        if ($event) {
+        if (Cache::has("event" . $id)) {
+            $event = Cache::get("event" . $id);
             return response()->json($event, 200);
-        } else {
-            return response()->json(["status" => 404, "message" => "event not found"], 404);
+        }
+        else {
+            $event = Event::find($id);
+            if ($event) {
+                Cache::put("event" . $id, $event, 60);
+                return response()->json($event, 200);
+            } else {
+                return response()->json(["status" => 404, "message" => "event not found"], 404);
+            }
+            
         }
     }
 
@@ -43,6 +66,10 @@ class EventsController extends Controller
         $event->startAt = $request->startAt;
         $event->endAt = $request->endAt;
         $event->save();
+
+        // cache new event for 1min
+        Cache::put("event" . $event->id, $event, 60);
+        SendEmail::dispatch($event->id)->onQueue('default');
         return response()->json(["status" => 201, "message" => "event created", "id" => $event->id], 201);
     }
 
@@ -55,6 +82,9 @@ class EventsController extends Controller
             $event->startAt = $request->startAt;
             $event->endAt = $request->endAt;
             $event->save();
+
+            // cache updated event for 1min
+            Cache::put("event" . $event->id, $event, 60);
             return response()->json(["status" => 200, "message" => "event updated"], 200);
         } else {
             $event = new Event();
@@ -66,6 +96,10 @@ class EventsController extends Controller
             $event->startAt = $request->startAt;
             $event->endAt = $request->endAt;
             $event->save();
+
+            // cache new event for 1min
+            Cache::put("event" . $event->id, $event, 60);
+            SendEmail::dispatch($event->id)->onQueue('default');
             return response()->json(["status" => 201, "message" => "event created", "id" => $event->id], 201);
         }
     }
@@ -86,6 +120,8 @@ class EventsController extends Controller
             }
             $event->updatedAt = Carbon::now();
             $event->save();
+
+            Cache::put("event" . $event->id, $event, 60);
             return response()->json(["status" => 200, "message" => "event updated"], 200);
         } else {
             return response()->json(["status" => 404, "message" => "event not found"], 404);
@@ -97,6 +133,9 @@ class EventsController extends Controller
         $event = Event::find($id);
         if ($event) {
             $event->delete();
+
+            // delete event from cache
+            Cache::forget("event" . $event->id);
             return response()->json(["status" => 200, "message" => "event deleted"], 200);
         } else {
             return response()->json(["status" => 404, "message" => "event not found"], 404);
@@ -127,26 +166,45 @@ class EventsController extends Controller
         $event->startAt = $request->startAt;
         $event->endAt = $request->endAt;
         $event->save();
+
+        Cache::put("event" . $event->id, $event, 60);
+        SendEmail::dispatch($event->id)->onQueue('default');
         return redirect()->route('events.index')->with('success', 'Event created!');
     }
 
     public function uiView($id)
     {
-        $event = Event::where('id', $id)->first();
-        if ($event) {
+        if (Cache::has("event" . $id)) {
+            $event = Cache::get("event" . $id);
             return view('events.view', compact('event'));
-        } else {
-            return redirect()->route('events.index')->with('error', 'Event not found.');
+        }
+        else {
+            $event = Event::find($id);
+            if ($event) {
+                Cache::put("event" . $id, $event, 60);
+                return view('events.view', compact('event'));
+            } else {
+                return redirect()->route('events.index')->with('error', 'Event not found!');
+            }
+            
         }
     }
 
     public function uiEdit($id)
     {
-        $event = Event::where('id', $id)->first();
-        if ($event) {
+        if (Cache::has("event" . $id)) {
+            $event = Cache::get("event" . $id);
             return view('events.edit', compact('event'));
-        } else {
-            return redirect()->route('events.index')->with('error', 'Event not found.');
+        }
+        else {
+            $event = Event::find($id);
+            if ($event) {
+                Cache::put("event" . $id, $event, 60);
+                return view('events.edit', compact('event'));
+            } else {
+                return redirect()->route('events.index')->with('error', 'Event not found!');
+            }
+            
         }
     }
 
@@ -160,6 +218,8 @@ class EventsController extends Controller
             $event->startAt = $request->startAt;
             $event->endAt = $request->endAt;
             $event->save();
+
+            Cache::put("event" . $event->id, $event, 60);
             return redirect()->route('events.index')->with('success', 'Event updated!');
         } else {
             return redirect()->route('events.index')->with('error', 'Event not found.');
@@ -170,6 +230,7 @@ class EventsController extends Controller
     {
         $event = Event::where('id', $id)->first();
         if ($event) {
+            Cache::forget("event" . $event->id);
             $event->delete();
             return redirect()->route('events.index')->with('success', 'Event deleted!');
         } else {
