@@ -60,7 +60,7 @@ class EventsController extends Controller
     {
         $event = new Event();
         $event->name = $request->name;
-        $event->slug = str_replace(' ', '-', $request->name);
+        $event->slug = str_replace(' ', '-', $request->name) . $event->startAt;
         $event->createdAt = Carbon::now();
         $event->updatedAt = Carbon::now();
         $event->startAt = $request->startAt;
@@ -77,7 +77,7 @@ class EventsController extends Controller
         $event = Event::find($id);
         if ($event) {
             $event->name = $request->name;
-            $event->slug = str_replace(' ', '-', $request->name);
+            $event->slug = str_replace(' ', '-', $request->name) . $event->startAt;
             $event->updatedAt = Carbon::now();
             $event->startAt = $request->startAt;
             $event->endAt = $request->endAt;
@@ -90,7 +90,7 @@ class EventsController extends Controller
             $event = new Event();
             $event->id = $id;
             $event->name = $request->name;
-            $event->slug = str_replace(' ', '-', $request->name);
+            $event->slug = str_replace(' ', '-', $request->name) . $event->startAt;
             $event->createdAt = Carbon::now();
             $event->updatedAt = Carbon::now();
             $event->startAt = $request->startAt;
@@ -110,7 +110,7 @@ class EventsController extends Controller
         if ($event) {
             if ($request->name) {
                 $event->name = $request->name;
-                $event->slug = str_replace(' ', '-', $request->name);
+                $event->slug = str_replace(' ', '-', $request->name) . $event->startAt;
             }
             if ($request->startAt) {
                 $event->startAt = $request->startAt;
@@ -160,7 +160,7 @@ class EventsController extends Controller
     public function uiStore(Request $request){
         $event = new Event();
         $event->name = $request->name;
-        $event->slug = str_replace(' ', '-', $request->name);
+        $event->slug = str_replace(' ', '-', $request->name) . $event->startAt;
         $event->createdAt = Carbon::now();
         $event->updatedAt = Carbon::now();
         $event->startAt = $request->startAt;
@@ -213,7 +213,7 @@ class EventsController extends Controller
         $event = Event::where('id', $id)->first();
         if ($event) {
             $event->name = $request->name;
-            $event->slug = str_replace(' ', '-', $request->name);
+            $event->slug = str_replace(' ', '-', $request->name) . $event->startAt;
             $event->updatedAt = Carbon::now();
             $event->startAt = $request->startAt;
             $event->endAt = $request->endAt;
