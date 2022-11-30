@@ -17,10 +17,31 @@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/events">Home</a>
                         </li>
+                        @if (Auth::check())
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              Hi, {{ Auth::user()->username }}
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                              <li>{{-- logout --}}
+                                <form method="POST" action="/logout">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form></li>
+                            </ul>
+                        </li>
+                        @endif
                     </ul>
+                    @if (Auth::check())
                     <a href="/events/create">
                         <button class="btn btn-outline-success" type="button">New Event</button>
                     </a>
+                    @else
+                    <div class="d-flex">
+                        <a class="nav-link mx-3" aria-current="page" href="/login">Login</a>
+                        <a class="nav-link mx-3" aria-current="page" href="/register">Register</a>
+                    </div>
+                    @endif
                 </div>
             </div>
         </nav>
