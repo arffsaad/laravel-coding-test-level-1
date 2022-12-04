@@ -7,6 +7,7 @@
         @vite(['resources/js/app.js'])
         @vite(['resources/css/app.css'])
         @vite(['resources/sass/app.scss'])
+        <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
     </head>
     <body class="bg-dark">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -16,6 +17,9 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/events">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/worldcup">World Cup API</a>
                         </li>
                         @if (Auth::check())
                         <li class="nav-item dropdown">
