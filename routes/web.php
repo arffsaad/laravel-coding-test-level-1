@@ -12,6 +12,10 @@ Route::get('/', function () {
     }
 });
 
+Route::get('/worldcup', function () {
+    return view('api.worldcup.index');
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::get('home', 'App\Http\Controllers\EventsController@uiIndex')->name('home');
 

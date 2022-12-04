@@ -32,3 +32,10 @@ Route::prefix('v1')->group(function () {
 
     Route::delete('events/{id}', 'App\Http\Controllers\EventsController@deleteEvent');
 });
+
+// worldcup API
+Route::prefix('worldcup')->group(function () {
+    Route::get('updateToken', 'App\Http\Controllers\WcController@updateToken');
+    Route::post('teams', 'App\Http\Controllers\WcController@teamInfo');
+    Route::get('teams', 'App\Http\Controllers\WcController@getTeams');
+});
