@@ -9,6 +9,7 @@
 
 #### First Test - CRUD REST API
 
+test
 - Make sure that you are in `main` branch
 - Create a new branch and name it `1-crud-api`
 - Create a model with name `Event`
