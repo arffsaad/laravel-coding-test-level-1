@@ -12,7 +12,7 @@
     <body class="bg-dark">
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="/">Events</a>
+                <a class="navbar-brand" href="/">Atomic Deployment Test</a>
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
